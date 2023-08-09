@@ -21,6 +21,7 @@ function displayWorks(data) {
         workElement.appendChild(workImage);
         workElement.appendChild(workDetail);
     }
+    console.log(data[1].imageUrl)
 }
 
 fetch(urlWorks)
@@ -47,8 +48,6 @@ function createFiltersButtons(datas) {
     };
 
 }
-
-
 
 // Ajout des eventListeners sur les boutons
 
@@ -151,7 +150,6 @@ if (loggedIn){
     //ajout de l'event listener au bouton modif Portfolio
     buttonEditGalleryPortfolio.addEventListener("click", ()=> {
         toggleModal();
-        
     });
     
     navLogin.addEventListener("click", (event) => {
@@ -253,6 +251,7 @@ function createModal() {
 async function getWorksModal() {
     try {
         const data = await fetchDatas();
+        document.querySelector(".modal-gallery").innerHTML = "";
         for (work of data) {
             const modalWorksGallery = document.querySelector(".modal-gallery");
             const modalWorkElement = document.createElement("figure");
@@ -274,20 +273,21 @@ async function getWorksModal() {
             // fonction qui supprime les travaux au clic de l'icone "supprimer"
 
             modalWorkImageIcon.addEventListener("click", (e)=>{
+                e.preventDefault();
                 id = e.target.dataset.id;
-                const idWork = {id: `${id.value}`};
-                const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MTE1MzkyMiwiZXhwIjoxNjkxMjQwMzIyfQ.RzVSgWKcTu1oYlc0PT8VCMalxPeaa2ZRXDNArhjsxIc";
+                //const idWork = {id: `${id.value}`};
+                const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MTQ3Nzc3NCwiZXhwIjoxNjkxNTY0MTc0fQ.IV7lGM31wdcg-cPkMakQAUCLTvsjijw2ynxSONWdC_0";
                 fetch(urlWorks + `/${id}`, {
                     method: 'DELETE',
                     headers: {
                         "accept": "*/*",
                         "Authorization": `Bearer ${token}`,
-                    body: JSON.stringify(idWork),
+                    //body: JSON.stringify(idWork)
                     }
-                })
+                })/*
                 .then(response => {
                     return response.json();
-                })
+                })*/
                 .then(data =>
                     console.log(data))
             })
@@ -302,6 +302,124 @@ function toggleModal() {
     const sectionModal = document.querySelector(".modal");
     sectionModal.classList.toggle("active");
 }
+
+
+// fonction ajout projet à la modale
+
+function addWorks () {
+    const formContentModal = document.querySelector(".section-form");
+    const formAddWorks = document.createElement("FORM");
+    formAddWorks.setAttribute('id', 'formAddWorks');
+    formAddWorks.setAttribute('method', 'post');
+    const imagePreview = document.createElement("img");
+    imagePreview.src = "";
+    imagePreview.className = "preview-file";
+    const labelPhoto = document.createElement("label");
+    labelPhoto.setAttribute("for", "load-photo")
+    labelPhoto.className = "label-photo";
+    const divPhoto = document.createElement("div");
+    divPhoto.className = "upload";
+    divPhoto.textContent = "+ Ajouter photo";
+    const inputPhoto = document.createElement("input");
+    inputPhoto.setAttribute("type", "file");
+    inputPhoto.setAttribute("name", "load-photo");
+    inputPhoto.setAttribute("id", "load-photo");
+    const spanPhoto = document.createElement("span");
+    spanPhoto.textContent = "jpg, png : 4mo max";
+    const labelTitle = document.createElement("label");
+    labelTitle.setAttribute("for", "title");
+    labelTitle.textContent = "Titre";
+    const inputTitle = document.createElement("input");
+    inputTitle.setAttribute("type", "text");
+    inputTitle.setAttribute("id", "title");
+    inputTitle.setAttribute("name", "title");
+    const labelCategory = document.createElement("label");
+    labelCategory.setAttribute("for", "category");
+    labelCategory.textContent = "Catégorie";
+    const selectCategory = document.createElement("select");
+    selectCategory.setAttribute("id", "category");
+    selectCategory.setAttribute("name", "category");
+    const optionCategory = document.createElement("option");
+    optionCategory.innerHTML = "";
+    const lineForm = document.createElement("hr");
+    lineForm.className = "line-form";
+    const submitFormAddWorks = document.createElement("input");
+    submitFormAddWorks.setAttribute("type", "submit");
+    submitFormAddWorks.setAttribute("value", "Valider");
+    submitFormAddWorks.setAttribute("name", "submit");
+
+    formContentModal.appendChild(formAddWorks);
+    formAddWorks.appendChild(imagePreview);
+    formAddWorks.appendChild(labelPhoto);
+    labelPhoto.appendChild(imagePreview);
+    labelPhoto.appendChild(divPhoto);
+    labelPhoto.appendChild(inputPhoto);
+    labelPhoto.appendChild(spanPhoto);
+    formAddWorks.appendChild(labelTitle);
+    formAddWorks.appendChild(inputTitle);
+    formAddWorks.appendChild(labelCategory);
+    formAddWorks.appendChild(selectCategory);
+    selectCategory.appendChild(optionCategory);
+    formAddWorks.appendChild(lineForm);
+    formAddWorks.appendChild(submitFormAddWorks);
+    createOption(category)
+    /*const inputImage = document.getElementById("#formAddWorks input[type=file]");
+    const inputCategories = document.getElementById("category");*/
+    submitFormAddWorks.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (inputImage.files === "" || inputTitle.value === "" || inputCategories.value === "") {
+            alert("Veuillez compléter tous les champs");
+        } else if (returnFileSize(inputImage.files.size) < 4){
+            alert("Veuillez insérer un fihier inférieur à 4 Mo");
+        } else{
+            const postWork = {
+                imageUrl: `${imageFile[0].value}`,
+                title: `${inputTitle[0].value}`,
+                category: `${selectCategory.options[0].id}`
+            };
+            fetch(urlWorks, {
+                method: "POST",
+                headers: {
+                "Content-Type": "multipart/form-data",
+                "accept": "application/json",
+                "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify(postWork)
+            })
+            .then((response) => {
+                if (response.status === 200){
+                    return response.json()
+                } else if (response.status === 404) {
+                    throw new Error("Erreur de récupération des données API")
+                } else if (response.status === 405) {
+                    return window.location.reload();
+                    //throw new Error("Erreur de récupération des données API")
+                }
+                return response.json()
+            })
+            .then((data) => console.log(data))
+            .catch((error) => {console.log(`Une erreur est survenue : ${error.message}`)});
+        }
+    })
+}
+
+function createOption(category) {
+    const selectCategory = document.querySelector("select");
+
+    for (let index = 0; index < category.length; index++) {
+        const optionCategory = document.createElement("option");
+        optionCategory.dataset.id = index.id;
+        optionCategory.textContent = index.name;
+        selectCategory.appendChild(optionCategory);
+    }
+}
+
+fetch(urlCategories)
+.then((response) => response.json())
+.then((category) => createOption(category))
+.catch((error) => {console.log(`Une erreur est survenue : ${error.message}`)})
+
+console.log(optionCategory[1].value)
 
 // fonction fetch pour récupérer les travaux de la modale
 async function fetchDatas() {
@@ -318,76 +436,21 @@ async function fetchDatas() {
     }
 }
 
-// fonction ajout projet à la modale
-
-function addWorks () {
-    const formContentModal = document.querySelector(".section-form");
-    const formAddWorks = document.createElement("FORM");
-    formAddWorks.setAttribute('id', 'formAddWorks');
-    formAddWorks.setAttribute('method', 'post');
-    formAddWorks.innerHTML = `
-    <form>
-        <div class="preview-file"></div>
-        <label for="photo" class="label-photo">
-            <div class="upload">+ Ajouter photo</div>
-            <input type="file" name="photo" id="photo" style="display:none" accept="image/png, image/jpg">
-            <span>jpg, png : 4mo max</span>
-        </label>
-        <label for="title">Titre</label>
-        <input type="text" id="title" name="title">
-        <label for="category">Categorie</label>
-        <select id="category" name="category">
-            <option value=""></option>
-            <option value="objets">Objets</option>
-            <option value="appartement">Appartement</option>
-            <option value="hotels">Hôtels & restaurants</option>
-        <input type="submit" value="Valider" name="valider">
-    </form>
-    `
-    formContentModal.appendChild(formAddWorks);
-
-    const inputImageFile = document.getElementById("photo");
-    const submitFormAddWorks = document.querySelector("#formAddWorks input[type=submit]");
-    const inputTitle = document.getElementById("#title");
-    const inputCategory = document.getElementById("category");
-
-    inputImageFile.addEventListener("change", uploadImageDisplay ());
-
-    submitFormAddWorks.addEventListener("click", () => {
-        if (inputImageFile.files !== null || inputTitle.value !== null || inputCategory.value !== null) {
-            alert("Veuillez compléter tous les champs");
-            
-        } else {
-            postDatas();
+async function fetchCategories() {
+    try {
+        const response = await fetch(urlCategories);
+        if (!response.ok) {
+            throw new Error("Erreur de récupération des données API")
         }
-    })
-}
-
-// fonction pour charger prévisualiser l'image chargée
-function uploadImageDisplay () {
-    const formContentModal = document.querySelector(".section-form");
-    const formAddWorks = document.getElementById("formAddWorks");
-    const inputImageFile = document.getElementById("photo");
-    const files = inputImageFile.files[0];
-    const messageFileLoaded = document.createElement("p");
-    //messageFileLoaded.textContent = "Erreur de chargement"
-    const imagePreview = document.querySelector("#formAddWorks img");
-    formContentModal.insertBefore(messageFileLoaded, formAddWorks);
-
-    if (files) {
-        const reader = new FileReader();
-        reader.readAsDataURL(files);
-        reader.addEventListener("load", () => {
-            imagePreview.style.display = "block";
-            imagePreview.innerHTML = '<img src="' + this.result + '" />';
-            messageFileLoaded.textContent = "File name " + files.name + ", file size " + returnFileSize(files.size) + ".";
-
-        });
-        //messageFileLoaded.style.display = "none";
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
     }
-    console.log(messageFileLoaded.value)
 }
-// fonction pour convertir la taille du fichier
+
+// fonction pour convertir la taille du fichier en MO
 function returnFileSize(number) {
     if (number < 1024) {
         return number + " octets";
@@ -398,19 +461,42 @@ function returnFileSize(number) {
     }
 }
 
+// fonction pour prévisualiser l'image chargée dans addWorks
+function previewFile() {
+    const loadImageFile = document.querySelector("#formAddWorks img");
+    const inputImageFile = document.querySelector("#formAddWorks input[type=file]").files[0];
+    const uploadImage = document.querySelector(".upload");
+    const spanImage = document.querySelector("#formAddWorks span")
+    const reader  = new FileReader();
+    reader.addEventListener("load", function () {
+        loadImageFile.src = reader.result;
+
+    }, 
+    false);
+    console.log(`File name: ${inputImageFile.name}`)
+
+    if (inputImageFile) {
+        reader.readAsDataURL(inputImageFile);
+        loadImageFile.style.display = "block";
+        uploadImage.style.display = "none";
+        spanImage.style.display = "none";
+    }
+}
+
+
+
 // fonction (insérée dans la fn addWorks) pour envoyer le projet à l'API
 async function postDatas() {
-    const imageFile = document.querySelector(".label-photo");
-    const inputTitle = document.querySelector("#formAddWorks #title");
-    const inputCategory = document.querySelector("#formAddWorks #category");
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MTE1MzkyMiwiZXhwIjoxNjkxMjQwMzIyfQ.RzVSgWKcTu1oYlc0PT8VCMalxPeaa2ZRXDNArhjsxIc";
-
+    const imageFile = document.querySelector(".label-photo").files;
+    const inputTitle = document.getElementById("#title");
+    const inputCategory = document.getElementById("#category");
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MTQ3Nzc3NCwiZXhwIjoxNjkxNTY0MTc0fQ.IV7lGM31wdcg-cPkMakQAUCLTvsjijw2ynxSONWdC_0";
+    const postWork = {
+        imageUrl: `${imageFile.value}`,
+        title: `${inputTitle.value}`,
+        category: `${inputCategory.value}`
+    };
     try {
-        const postWork = {
-            imageUrl: `${imageFile.files[0]}`,
-            title: `${inputTitle.value}`,
-            category: `${inputCategory.value}`,
-        };
         const response = await fetch(urlWorks, {
             method: "POST",
             headers: {
@@ -418,11 +504,9 @@ async function postDatas() {
             "accept": "application/json",
             "Authorization": `Bearer ${token}`,
             },
-            body: JSON.stringify(postWork) 
+            body: JSON.stringify(postWork)
         });
-        if (!response.ok) {
-            throw new Error("Erreur de récupération des données API")
-        }
+        
         const data = await response.json();
         return data;
     } catch (error) {
