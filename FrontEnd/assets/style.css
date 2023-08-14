@@ -241,7 +241,8 @@ form {
 
 input, select {
 	height: 50px;
-	font-size: 1.2em;
+	font-family: 'Work Sans';
+	font-size: 14px;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
@@ -526,6 +527,8 @@ footer nav ul li{
 	color:#FFF;
 	background-color: #A7A7A7;
 	width: 237px;
+	margin-top: 32px;
+	margin-bottom: 40px;
 
 }
 #formAddWorks input[type="submit"].validate{
@@ -586,19 +589,16 @@ footer nav ul li{
 .preview-file {
 	width: 210px;
     height: 210px;
-    position: absolute;
     z-index: 1;
-    top: 18%;
-    left: 33%;
 	display: none;
 }
 #formAddWorks select {
-	margin-bottom: 20px;
-	padding-bottom: 20px;
+	margin-bottom: 40px;
+	padding: 10px;
 
 }
 #formAddWorks hr {
-	height: 1px;
+	height: 0.5px;
 	width: 100%;
 	color: #b3b3b3;
 }
