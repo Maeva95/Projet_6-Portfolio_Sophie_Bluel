@@ -605,3 +605,8 @@ footer nav ul li{
 	width: 100%;
 	color: #b3b3b3;
 }
+
+#formAddWorks > *:focus {
+	box-shadow: 0 0 8px #306685;
+
+}

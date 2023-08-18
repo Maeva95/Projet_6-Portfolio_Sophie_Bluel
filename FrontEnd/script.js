@@ -5,9 +5,9 @@ const urlUsersLogin = 'http://localhost:5678/api/users/login';
 
 
 // Affichage de tous les projets dans la galerie //
-function displayWorks(data) {
+function displayWorks(works) {
     document.querySelector('.gallery').innerHTML = '';
-    for (const work of data) {
+    for (const work of works) {
         const worksGallery = document.querySelector('.gallery');
         const workElement = document.createElement('figure');
         workElement.dataset.id = work.categoryId;
@@ -25,9 +25,8 @@ function displayWorks(data) {
 
 fetch(urlWorks)
 .then((response) => response.json())
-.then((data) => displayWorks(data))
-.catch((error) => {console.log(`Une erreur est survenue : ${error.message}`)})
-
+.then((works) => displayWorks(works))
+.catch((error) => {console.log(`Une erreur displayWorks est survenue : ${error.message}`)})
 
 
 // création des buttons de filtres des projets
@@ -56,7 +55,7 @@ function filtersWorks (works) {
     for (let i = 0; i < filterContainer.length; i++) {
         const filterButton = document.querySelector(`.categories button:nth-child(${i+1})`);
         // ajout d'eventListener pour chacun des boutons
-        filterButton.addEventListener('click', () => {
+        filterButton.addEventListener('click', (e) => {
             
             //activer ou désactiver les boutons de filtre
             let filterButtonSelect = document.querySelector('.category-btn-selected');
@@ -67,28 +66,29 @@ function filtersWorks (works) {
             let worksFiltered = works.filter((work) => {
                 return work.categoryId === i || i === 0;
             });
+            console.log(e.target)
             //afficher les projets filtrés
             return displayWorks(worksFiltered)
+            
         });
     }     
 }
 
+
 fetch(urlWorks)
 .then((resp) => resp.json())
-.then((works) => filtersWorks (works))
+//.then((works) => displayWorks(works))
+.then((works) => filtersWorks(works))
 .catch((error) => {console.log(`Une erreur est survenue : ${error.message}`)})
-
 
 
 /////////// création Homepage Edit /////////
 
 
-
 const userId = window.localStorage.getItem('userId');
 const userToken = window.localStorage.getItem('token');
 const loggedIn = userId && userToken ? true : false;
-const tokenBearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MjI3NjA1NywiZXhwIjoxNjkyMzYyNDU3fQ.eKAgxNjiGedndlb7CPZvAlb_nw76fjl2VWTd5MZQoFY';
-
+const tokenBearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MjM0NTQ5MywiZXhwIjoxNjkyNDMxODkzfQ.3KlFaU3BmY5us10h0cIqNdwrEasvnamM3apGu9u5_BI';
 
 // Retrait des filtres des projets lorsque nous ne sommes pas connectés
 if (!loggedIn) {
@@ -96,7 +96,6 @@ if (!loggedIn) {
     .then((response) => response.json())
     .then((datas) => createFiltersButtons(datas))
     .catch((error) => {console.log(`Une erreur est survenue : ${error.message}`)})
-
 }
 
 //enregistrer le token dans le LS 
@@ -172,7 +171,7 @@ if (loggedIn){
             window.localStorage.removeItem('token');
             window.location.href = './index.html';
         }
-    })
+    });
 
     navLogin.addEventListener('click', (event) => {
     
@@ -252,6 +251,11 @@ function createModal () {
         formContentModal.style.display = 'none';
         galleryContentModal.style.display = 'flex';
     });
+
+    buttonCancelGallery.addEventListener('click', () => {
+        deleteGallery();
+    })
+
     // au click de l'icone 'x', fermer la fenetre sectionModal
     iconCloseModal.addEventListener('click', closeModal);
 
@@ -273,6 +277,25 @@ function closeModal () {
     document.querySelector('.section-gallery').style.display = 'none';
     document.querySelector('.section-form').style.display = 'none';
     document.querySelector('.return').style.display = 'none';
+}
+
+function deleteGallery() {
+    const modalWorkElements = document.querySelectorAll('.modal-gallery figure');
+    for (let index = 0; index < modalWorkElements.length; index++) {
+        const modalWorkElement = document.querySelector(`.modal-gallery figure:nth-child(${index+1})`);
+        const id = modalWorkElement.dataset.id;
+        fetch(urlWorks + `/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'accept': '*/*',
+                'Authorization': `Bearer ${tokenBearer}`
+            },
+        })
+        .then((reponse) => reponse.json())
+        .then(works => console.log(works))
+        .then((works) => works)
+        .catch((error) => console.log("Une erreur est survenue: " + (error.message)))
+    }
 }
 
 // générer les travaux de la modale
@@ -313,9 +336,7 @@ async function displayWorksModal () {
             // supprimer un projet
             modalIconDeleteWork.addEventListener('click', (e)=>{
                 e.preventDefault();
-                deleteWorks(e)
-                closeModal();
-                window.location.reload();
+                deleteWorks(e);
             }, false)
         }
     } catch (error) {
@@ -432,16 +453,21 @@ function addWorks () {
     inputTitle.addEventListener('input', () => {
         console.log(inputTitle.value);
     });
+    let optionSelected = document.getElementById('category').selectedIndex;
 
     selectCategory.addEventListener('change', () => {
-        let optionSelected = document.getElementById('category').selectedIndex;
         console.log(optionSelected);
     });
+    
+    if (inputPhoto === null && inputTitle === '' && optionSelected === null) {
+        alert ("Veuillez compléter tous les champs du formulaire")
+    } else {
         
+    }
     formAddWorks.addEventListener('submit', (e) => {
-        e.preventDefault()
-        postWorks().then(error => console.error(error));
-        window.location.reload();
+        e.preventDefault();
+        postWorks();
+        //window.location.reload();
 
     }), false;
 };
@@ -495,7 +521,7 @@ function previewFileLoaded () {
 
 //fonction (insérée dans la fn addWorks) pour envoyer le projet à l'API
 
-async function postWorks () {
+function postWorks () {
     const inputImageFile = document.querySelector('#formAddWorks input[type=file]').files[0];
     const inputTitleValue = document.querySelector('#formAddWorks input[type=text]').value;
     const optionSelected = document.querySelector('#formAddWorks select').selectedIndex;
@@ -513,20 +539,25 @@ async function postWorks () {
         },
         body: formData
     };
-
-    try {
+    fetch(urlWorks, requestOptions)
+    .then(reponse => reponse.json())
+    .then(data => console.log(data))
+    .then(displayWorksModal(works))
+    .then(displayWorks)
+    /*try {
         const response = await fetch(urlWorks, requestOptions);
-        if (!response.ok) {
-            throw new Error('Erreur de d'/'envoi des données API')
-        }
+            if (!response.ok) {
+                throw new Error('Erreur de d'/'envoi des données API')
+            }
         const data = await response.json();
-        return data;
+        console.log(data);
         
     } catch (error) {
         console.error(error);
         throw error;
     }
-    
+    */
 }
+
 
 

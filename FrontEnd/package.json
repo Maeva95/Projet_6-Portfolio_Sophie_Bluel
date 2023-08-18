@@ -1,7 +1,4 @@
 {
-  "devDependencies": {
-    "eslint": "^8.46.0"
-  },
   "scripts": {
     "dev": "http-server",
     "lint": "eslint *.js text "
