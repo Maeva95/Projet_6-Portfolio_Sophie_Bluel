@@ -10,7 +10,7 @@ function displayWorks(works) {
     for (const work of works) {
         const worksGallery = document.querySelector('.gallery');
         const workElement = document.createElement('figure');
-        workElement.dataset.id = work.categoryId;
+        workElement.dataset.id = work.id;
         const workImage = document.createElement('img');
         workImage.src = work.imageUrl;
         workImage.alt = work.title;
@@ -77,9 +77,8 @@ function filtersWorks (works) {
 
 fetch(urlWorks)
 .then((resp) => resp.json())
-//.then((works) => displayWorks(works))
 .then((works) => filtersWorks(works))
-.catch((error) => {console.log(`Une erreur est survenue : ${error.message}`)})
+.catch((error) => {console.log(`Une erreur de filtersWorks est survenue : ${error.message}`)})
 
 
 /////////// création Homepage Edit /////////
@@ -88,14 +87,14 @@ fetch(urlWorks)
 const userId = window.localStorage.getItem('userId');
 const userToken = window.localStorage.getItem('token');
 const loggedIn = userId && userToken ? true : false;
-const tokenBearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MjM0NTQ5MywiZXhwIjoxNjkyNDMxODkzfQ.3KlFaU3BmY5us10h0cIqNdwrEasvnamM3apGu9u5_BI';
+const tokenBearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MjYxMjQyOCwiZXhwIjoxNjkyNjk4ODI4fQ.ydweze5-remY-yfWrbr7iU66keskpD6gP4I1GFy7m6Q';
 
 // Retrait des filtres des projets lorsque nous ne sommes pas connectés
 if (!loggedIn) {
     fetch(urlCategories)
     .then((response) => response.json())
     .then((datas) => createFiltersButtons(datas))
-    .catch((error) => {console.log(`Une erreur est survenue : ${error.message}`)})
+    .catch((error) => {console.log(`Une erreur createFilters est survenue : ${error.message}`)})
 }
 
 //enregistrer le token dans le LS 
@@ -294,7 +293,9 @@ function deleteGallery() {
         .then((reponse) => reponse.json())
         .then(works => console.log(works))
         .then((works) => works)
-        .catch((error) => console.log("Une erreur est survenue: " + (error.message)))
+        .then(modalWorkElement.remove())
+        .then(workElement.remove())
+        .catch((error) => console.log("Une erreur de deletGallery est survenue: " + (error.message)))
     }
 }
 
@@ -303,6 +304,7 @@ async function displayWorksModal () {
     try {
         const data = await fetchDatas();
         document.querySelector('.modal-gallery').innerHTML = '';
+
         for (work of data) {
             const modalWorksGallery = document.querySelector('.modal-gallery');
             const modalWorkElement = document.createElement('figure');
@@ -325,6 +327,9 @@ async function displayWorksModal () {
             modalWorkElement.appendChild(modalIconDeleteWork);
             modalWorkElement.appendChild(modalIconMoveWork);
 
+            const workElement = document.querySelector('.gallery figure');
+            workElement.dataset.id = work.id;
+
             modalWorkElement.addEventListener('mouseover', function () {
                 modalIconMoveWork.style.visibility = 'visible';
             }, false);
@@ -334,46 +339,56 @@ async function displayWorksModal () {
             }, false);
 
             // supprimer un projet
-            modalIconDeleteWork.addEventListener('click', (e)=>{
+            modalIconDeleteWork.addEventListener('click', (e)=> {
                 e.preventDefault();
                 deleteWorks(e);
             }, false)
+            function deleteWorks() {
+                
+                const workElement = document.querySelector('.gallery figure');
+                work.id = workElement.dataset.id;
+                fetch(urlWorks + `/${work.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'accept': '*/*',
+                        'Authorization': `Bearer ${tokenBearer}`
+                    },
+                })
+                .then((reponse) => reponse.json())
+                .then((result) => console.log(result))
+                .then(modalWorkElement.remove())
+                .then(workElement.remove())
+                .catch((error) => console.log("Une erreur de DeleteWorks est survenue: " + (error.message)))
+            }
+            
         }
+    console.table(work)
     } catch (error) {
         console.log('Message erreur: ' + (error.message) )
     }
 }
 
+
 // fonction suppression d'un projet dans la galerie
 
-function deleteWorks(e) {
-    const id = e.target.dataset.id;
-    fetch(urlWorks + `/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'accept': '*/*',
-            'Authorization': `Bearer ${tokenBearer}`
-        },
-    })
-    .then((reponse) => reponse.json())
-    .then((result) => result)
-    .catch((error) => console.log("Une erreur est survenue: " + (error.message)))
+function deleteWorkGallery(work) {
+    const workElement = document.querySelector('.gallery figure');
+    workElement.dataset.id = work.id;
+    workElement.remove();
+    //fetch(urlWorks + `/${work.id}`, {
+    //    method: 'DELETE',
+    //    headers: {
+    //        'accept': '*/*',
+    //        'Authorization': `Bearer ${tokenBearer}`
+    //    },
+    //})
+    //.then((reponse) => reponse.json())
+    //.then((work) => console.log(work))
+    //.then(workElement.remove())
+    //.catch((error) => console.log("Une erreur de DeleteWorks est survenue: " + (error.message)))
 }
 
-// fonction fetch pour récupérer les travaux de la modale
-async function fetchDatas() {
-    try {
-        const response = await fetch(urlWorks);
-        if (!response.ok) {
-            throw new Error('Erreur de récupération des données API')
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-}
+
 
 // fonction ajout projet à la modale
 
@@ -453,7 +468,7 @@ function addWorks () {
     inputTitle.addEventListener('input', () => {
         console.log(inputTitle.value);
     });
-    let optionSelected = document.getElementById('category').selectedIndex;
+    const optionSelected = document.getElementById('category').selectedIndex;
 
     selectCategory.addEventListener('change', () => {
         console.log(optionSelected);
@@ -467,7 +482,6 @@ function addWorks () {
     formAddWorks.addEventListener('submit', (e) => {
         e.preventDefault();
         postWorks();
-        //window.location.reload();
 
     }), false;
 };
@@ -542,22 +556,60 @@ function postWorks () {
     fetch(urlWorks, requestOptions)
     .then(reponse => reponse.json())
     .then(data => console.log(data))
-    .then(displayWorksModal(works))
-    .then(displayWorks)
-    /*try {
-        const response = await fetch(urlWorks, requestOptions);
-            if (!response.ok) {
-                throw new Error('Erreur de d'/'envoi des données API')
-            }
+    .then((data) => displayWorksModal(data)) // ajout d'un projet posté à la modale
+    .then((data) => createElementPosted(data)) // ajout d'un projet posté à la galerie
+    .then(returnGalleryModal) // réinitialisation de la section modal
+    .catch(error => console.console.error(error))
+}
+
+async function createElementPosted () {
+    try {
+        const data = await fetchDatas();
+        document.querySelector('.gallery').innerHTML = '';
+        for (const work of data) {
+            const worksGallery = document.querySelector('.gallery');
+            const workElement = document.createElement('figure');
+            workElement.dataset.id = work.categoryId;
+            const workImage = document.createElement('img');
+            workImage.src = work.imageUrl;
+            workImage.alt = work.title;
+            const workDetail = document.createElement('figcaption')
+            workDetail.innerText = work.title;
+            // rattachement des balises aux DOM
+            worksGallery.appendChild(workElement);
+            workElement.appendChild(workImage);
+            workElement.appendChild(workDetail);
+        }
+    } catch (error) {
+        console.log('Message erreur: ' + (error.message) )
+    }
+}
+
+
+const returnGalleryModal = function (){
+    const returnModalWorks = document.querySelector('.return');
+    returnModalWorks.style.display = 'none';
+    const formContentModal = document.querySelector('.section-form');
+    formContentModal.style.display = 'none';
+    const inputTitle = document.querySelector('#formAddWorks #title');
+    inputTitle.textContent = '';
+    const selectCategory = document.querySelector('#formAddWorks #category');
+    selectCategory.textContent = '';
+    const galleryContentModal = document.querySelector('.section-gallery')
+    galleryContentModal.style.display = 'flex';
+}
+
+// fonction fetch pour récupérer les travaux de la modale
+async function fetchDatas() {
+    try {
+        const response = await fetch(urlWorks);
+        if (!response.ok) {
+            throw new Error('Erreur de récupération des données API')
+        }
         const data = await response.json();
-        console.log(data);
-        
+        return data;
     } catch (error) {
         console.error(error);
         throw error;
     }
-    */
 }
-
-
-
