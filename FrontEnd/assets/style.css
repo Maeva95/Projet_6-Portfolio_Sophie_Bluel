@@ -438,6 +438,7 @@ footer nav ul li{
 	margin: 0 105px;
 	border-bottom: 1px solid #b3b3b3;
 	box-sizing: border-box;
+	overflow: auto;
 }
 
 .modal-gallery figure {
@@ -515,18 +516,18 @@ footer nav ul li{
 	color:#900;
 }
 
-#formAddWorks {
+#form-add-works {
 	width: 410px;
 	padding: 8px 0;
 	margin: 0 105px;
 
 }
 
-#formAddWorks input[type="file"] {
+#form-add-works input[type="file"] {
 	display: none;
 }
 
-#formAddWorks input[type="submit"]{
+#form-add-works input[type="submit"]{
 	color:#FFF;
 	background-color: #A7A7A7;
 	width: 237px;
@@ -534,7 +535,7 @@ footer nav ul li{
 	margin-bottom: 47px;
 
 }
-#formAddWorks input[type="submit"].active{
+#form-add-works input[type="submit"].active{
 	font-family: 'Syne';
 	font-weight: 700;
 	color: white;
@@ -565,6 +566,7 @@ footer nav ul li{
 	align-items: center;
 	gap: 7px;
 }
+
 .label-photo .upload{
 	color: #306685;
 	background-color: #CBD6DC;
@@ -595,18 +597,33 @@ footer nav ul li{
     z-index: 1;
 	display: none;
 }
-#formAddWorks select {
+#form-add-works input[type=text]:valid {
+	box-shadow: 0 0 15px #30855b;
+}
+#form-add-works input[type=text]:invalid {
+	box-shadow: 0 0 15px #900;
+}
+#form-add-works select {
 	margin-bottom: 40px;
 	padding: 10px;
 
 }
-#formAddWorks hr {
+#form-add-works select:valid {
+	box-shadow: 0 0 15px #30855b;
+}
+#form-add-works select:invalid {
+	box-shadow: 0 0 15px #900;
+}
+#form-add-works hr {
 	height: 0.5px;
 	width: 100%;
 	color: #b3b3b3;
 }
 
-#formAddWorks > *:focus {
+#form-add-works > *:focus {
 	box-shadow: 0 0 8px #306685;
 
+}
+#form-add-works input[type=submit].valid {
+	background-color: #1D6154;
 }
