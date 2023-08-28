@@ -5,7 +5,7 @@ const userId = window.localStorage.getItem('userId');
 const userToken = window.localStorage.getItem('token');
 const loggedIn = userId && userToken ? true : false;
 const loggedOut = !loggedIn;
-const tokenBearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5Mjk0NzcwOCwiZXhwIjoxNjkzMDM0MTA4fQ.QlUYyJJc-qvdTghBX6OgdFgvwErUboapAnP9a14a-RI';
+const tokenBearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MzIxMDkzOCwiZXhwIjoxNjkzMjk3MzM4fQ.VJQFHdxi0yhs341MleS9v-Ygjs8AFm6_8_j-91n6CNc';
 
 ///// enregistrer le token dans le LS /////
 if (loggedIn === null){
@@ -85,7 +85,6 @@ async function filtersWorks(works) {
             const worksFiltered = works.filter((work) => {
                 return work.categoryId === i || i === 0;
             });
-            console.log(e.target)
             //afficher les projets filtrés
             return displayWorks(worksFiltered)
         });
@@ -94,13 +93,21 @@ async function filtersWorks(works) {
 
 
 ///// Retrait des filtres du protfolio lorsque nous sommes déconnectés /////
+const navLogin = document.querySelector('nav li:nth-child(3) a');
+
 if (!loggedIn) {
     fetch(urlCategories)
     .then((response) => response.json())
     .then((datas) => createFiltersButtons(datas))
     .catch((error) => {console.log(`Une erreur createFilters est survenue : ${error.message}`)})
+    
 }
 
+//navLogin.addEventListener('click', () => {
+ //   if (loggedOut) {
+//        window.location.href = "./login/login.html";
+ //   }
+//})
 
         ////////////////////////////////////////////
         //                                        //
@@ -111,7 +118,6 @@ if (!loggedIn) {
 if (loggedIn){
     
     //modif texte lien nav 'login' en 'logout'
-    const navLogin = document.querySelector('nav li:nth-child(3) a');
     navLogin.textContent = 'logout';
 
     // création du mode édition dans le header
@@ -169,7 +175,9 @@ if (loggedIn){
     // Event listener pour logout
     navLogin.addEventListener('click', (event) => {
         event.preventDefault();
-        resetHomePage ();
+        window.localStorage.removeItem('userId');
+        window.localStorage.removeItem('token');
+        window.location.href = "./login/login.html";
     });
     // Event listener du bouton "modifier la section intro"
     buttonEditGalleryIntro.addEventListener ('click', () => {
@@ -184,20 +192,7 @@ if (loggedIn){
     });
 }
 
-function resetHomePage () {
-    if (loggedIn) {
-        window.localStorage.removeItem('userId');
-        window.localStorage.removeItem('token');
-        document.querySelector('.modeEdition').remove();
-        buttonEditGalleryIntro.remove();
-        buttonEditGalleryPortfolio.remove();
-        document.querySelector('.modal').remove();
-        navLogin.innerText = 'login';
-        //window.location.href = './index.html';
-    } else {
-        location.href = './login/login.html';
-    }
-}
+
 //// modification section Intro (en option) ////
 /*function editIntro () {
     const imageIntroSource = document.querySelector('#introduction img').src;
@@ -373,7 +368,6 @@ function deleteWorkModal(modalIconDeleteWork) {
             const modalWorkContainer = modalIconDeleteWork.parentElement;
             modalWorkContainer.remove();
             const workContainer = document.getElementById(idWork);
-            console.log(workContainer)
             if (workContainer) {
                 workContainer.remove()
             }
@@ -555,7 +549,7 @@ function previewFileLoaded () {
         loadImageFile.style.display = 'block';
         uploadImage.style.display = 'none';
         spanImage.style.display = 'none';
-        console.log(inputImageFile);
+        //console.log(inputImageFile);
     }
 };
 
@@ -587,7 +581,7 @@ function postWorks () {
             return reponse.json();
         }
     })
-    .then(data => console.log(data))
+    //.then(data => console.log(data))
     .then((data) => displayWorksModal(data)) // ajout d'un projet posté à la modale
     .then((data) => createElementPosted(data)) // ajout d'un projet posté à la galerie
     .then(returnGalleryModal) // réinitialisation de la section modal

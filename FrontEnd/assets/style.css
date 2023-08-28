@@ -599,17 +599,11 @@ footer nav ul li{
 	display: none;
 }
 
-#form-add-works input[type=text]:invalid {
-	box-shadow: 0 0 15px #900;
-}
 #form-add-works input[type=text].valid {
 	box-shadow: 0 0 15px #1D6154;
 }
 #form-add-works select.valid {
 	box-shadow: 0 0 15px #1D6154;
-}
-#form-add-works select:invalid {
-	box-shadow: 0 0 15px #900;
 }
 
 #form-add-works .line-form {
