@@ -2,7 +2,7 @@
 const urlUsersLogin = 'http://localhost:5678/api/users/login';
 
 /**
- * Cette fonction prend un email en paramètre et valide qu'il est au bon format. 
+ * Cette fonction prend un email en paramètre et est valide lorsqu'il est au bon format. 
  * @param {string} email 
  * @return {boolean}
  */
@@ -18,6 +18,7 @@ function vérifierEmail(email) {
     return false
 }
 
+
 function generateListenerForm () {
     const loginForm = document.getElementById("formConnexion");
     const emailLogin = document.getElementById("email");
@@ -26,45 +27,40 @@ function generateListenerForm () {
     const errorPassword = loginForm.querySelector(".errorEmail");
 
     // ajout de l'event Listener sur le champ email
-    emailLogin.addEventListener("input", (event) => {
+    emailLogin.addEventListener("keypress", (event) => {
         const user = event.target.value;
         const valide = vérifierEmail(email);
         console.log(user)
         //verification email
-        if (user === "" || user == false) {
+        if (user === "") {
             errorEmail.innerHTML = "Veuillez saisir une adresse mail valide!";
-            alert("Veuillez saisir une adresse mail")
-            return false;
         // verification du format email
         } else if (valide) {
             console.log(ok)
+            errorEmail.innerHTML = "";
         }
-        return true;
     });
     // ajout de l'event Listener sur le champ mot de passe
-    passwordLogin.addEventListener("input", (event) => {
-        const user= event.target.value;
+    passwordLogin.addEventListener("keypress", (event) => {
+        const user = event.target.value ;
         console.log(user)
         //verification mot de passe
-        if (user === "" || user == false) {
+        if (user === "") {
             errorPassword.innerHTML = "Veuillez saisir un mot de passe valide!";;
-            alert("Veuillez saisir un mot de passe valide!")
+        } else {
+            errorEmail.innerHTML = "";
         }
-        return true;
     });
     // ajout de l'event Listener sur le formaulaire
     loginForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        
         // Si absence de mail et mot de passe ou mail et mot de passe invalides, déclancher une alerte 
         if (emailLogin.value === "" ||  passwordLogin.value === "") {
             alert("Veuillez renseigner tous les champs du formulaire de connexion");
         }
         if (!emailLogin.validity.valid && !passwordLogin.validity.valid) {
-            errorEmail.innerHTML = "Veuillez renseigner une adresse email valide";
-            errorPassword.innerHTML = "Veuillez renseigner un mot de passe valide"
-            alert("Veuillez renseigner une adresse email et mot de passe valide!")
-        }else{
+            alert("Veuillez renseigner une adresse email et un mot de passe valides!")
+        } else {
             let validateUser = {
                 email: `${emailLogin.value}`,
                 password: `${passwordLogin.value}`
@@ -82,10 +78,12 @@ function generateListenerForm () {
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
-                } else if (response.status === 404) {
+                }
+                if (response.status === 404) {
                     return response.status(404).json({"message": "utilisateur introuvable"});
-                } else if (response.status === 401) {
-                    throw new Error('Il manque des informations d’authentification valides. Veuillez vérifier les champs de saisi')
+                }
+                if (response.status === 401) {
+                    throw alert("Vous n'êtes pas autorisés à vous connecter car vos identifiants sont incorrects")
                 }
             })
             // puis on stocke le token dans le localStorage
@@ -93,16 +91,15 @@ function generateListenerForm () {
                 let { userId, token } = userDatas;
                 if (userId && token) {
                     //enregistrement de userID et token dans le localStorage
-                    window.localStorage.setItem("token", token);
-                    window.localStorage.setItem("userId", userId);
+                    localStorage.setItem("token", token);
+                    localStorage.setItem("userId", userId);
+                    location.replace("../index.html");
                     //redirection vers la page index
-                    window.location.replace("../index.html");
                 }
             })
             .catch((error) => {console.log(`Une erreur est survenue : ${error.message}`)});
         }
     });
 }
-
 
 generateListenerForm ();

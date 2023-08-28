@@ -383,11 +383,12 @@ footer nav ul li{
 
 .modal-content {
 	position: relative;
-	top: 20%;
+	top: 10%;
 	left: 25%;
 	width: 95%;
 	max-width: 630px;
 	min-width: 300px;
+	max-height: 731px;
 	background-color: #FFF;
 	display: flex;
 	flex-direction: column;
@@ -597,26 +598,24 @@ footer nav ul li{
     z-index: 1;
 	display: none;
 }
-#form-add-works input[type=text]:valid {
-	box-shadow: 0 0 15px #30855b;
-}
+
 #form-add-works input[type=text]:invalid {
 	box-shadow: 0 0 15px #900;
 }
-#form-add-works select {
-	margin-bottom: 40px;
-	padding: 10px;
-
+#form-add-works input[type=text].valid {
+	box-shadow: 0 0 15px #1D6154;
 }
-#form-add-works select:valid {
-	box-shadow: 0 0 15px #30855b;
+#form-add-works select.valid {
+	box-shadow: 0 0 15px #1D6154;
 }
 #form-add-works select:invalid {
 	box-shadow: 0 0 15px #900;
 }
-#form-add-works hr {
-	height: 0.5px;
+
+#form-add-works .line-form {
+	border-bottom: 1px solid #b3b3b3;
 	width: 100%;
+	margin-top: 47px;
 	color: #b3b3b3;
 }
 

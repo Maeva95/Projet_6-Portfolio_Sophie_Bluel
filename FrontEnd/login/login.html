@@ -32,13 +32,13 @@
 <main>
 	<section id="login">
 		<h2>log in</h2>
-		<form id="formConnexion" method="post">
+		<form id="formConnexion">
 			<label for="email">Email</label>
+			<span class="errorEmail"></span>
 			<input type="email" name="emailLogin" id="email" autocomplete="email" required>
 			<label for="password">Mot de passe</label>
-			<span class="errorEmail"></span>
-			<input type="password" id="password" name="passwordLogin" autocomplete="current-password" required>
 			<span class="errorPassword"></span>
+			<input type="password" id="password" name="passwordLogin" autocomplete="current-password" required>
             <input type="submit" value="Se connecter" name="envoyer">
             <span id="error"></span><br>
 		</form>
