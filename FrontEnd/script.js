@@ -5,7 +5,7 @@ const userId = window.localStorage.getItem('userId');
 const userToken = window.localStorage.getItem('token');
 const loggedIn = userId && userToken ? true : false;
 const loggedOut = !loggedIn;
-const tokenBearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5MzIxMDkzOCwiZXhwIjoxNjkzMjk3MzM4fQ.VJQFHdxi0yhs341MleS9v-Ygjs8AFm6_8_j-91n6CNc';
+const tokenBearer = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY5Njg2NjAyMywiZXhwIjoxNjk2OTUyNDIzfQ.IHTtZo_n3nZUsIXpRJYKN-rSaTK0SI9q9XGgrG_T4a4';
 
 ///// enregistrer le token dans le LS /////
 if (loggedIn === null){

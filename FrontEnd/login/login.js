@@ -80,7 +80,7 @@ function generateListenerForm () {
                     return response.json();
                 }
                 if (response.status === 404) {
-                    return response.status(404).json({"message": "utilisateur introuvable"});
+                    return alert("Vos identitfiants ne correspondent pas, veuillez réessayer")
                 }
                 if (response.status === 401) {
                     throw alert("Vous n'êtes pas autorisés à vous connecter car vos identifiants sont incorrects")
